@@ -14,6 +14,24 @@ class ViewController: UITableViewController, UIImagePickerControllerDelegate, UI
         super.viewDidLoad()
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addPhoto))
+        
+        let defaults = UserDefaults()
+        if let defaults = defaults.object(forKey: "photos") as? Data {
+            do {
+                photos = try JSONDecoder().decode([Photo].self, from: defaults)
+            } catch {
+                print("Failed to load photos.")
+            }
+        }
+    }
+    
+    func save() {
+        if let savedPhotos = try? JSONEncoder().encode(photos) {
+            let defaults = UserDefaults()
+            defaults.set(savedPhotos, forKey: "photos")
+        } else {
+            print("Failed to save photos.")
+        }
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -71,8 +89,6 @@ class ViewController: UITableViewController, UIImagePickerControllerDelegate, UI
         let photo = Photo(caption: "", image: imageName)
         photos.append(photo)
         
-        
-//        save()
         dismiss(animated: true)
         showAlert(photo: photo)
     }
@@ -85,6 +101,8 @@ class ViewController: UITableViewController, UIImagePickerControllerDelegate, UI
         ac.addAction(UIAlertAction(title: "Submit", style: .default) { [weak self, weak ac] _ in
             guard let caption = ac?.textFields?[0].text else { return }
             photo.caption = caption
+            
+            self?.save()
             self?.tableView.reloadData()
         })
         
