@@ -30,12 +30,20 @@ class ViewController: UITableViewController, UIImagePickerControllerDelegate, UI
         var content = cell.defaultContentConfiguration()
         content.text = photo.caption
         
-        let path = getDocumentsDirectory().appending(path: photo.image)
+        let path = FileManager.documentsDirectory.appending(path: photo.image)
         content.image = UIImage(contentsOfFile: path.path())
         
         cell.contentConfiguration = content
         
         return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if let vc = storyboard?.instantiateViewController(withIdentifier: "DetailViewController") as? DetailViewController {
+            vc.photoImageName = photos[indexPath.row].image
+            
+            navigationController?.pushViewController(vc, animated: true)
+        }
     }
     
     @objc func addPhoto() {
@@ -54,7 +62,7 @@ class ViewController: UITableViewController, UIImagePickerControllerDelegate, UI
         guard let image = info[.editedImage] as? UIImage else { return }
 
         let imageName = UUID().uuidString
-        let imagePath = getDocumentsDirectory().appendingPathComponent(imageName)
+        let imagePath = FileManager.documentsDirectory.appending(path: imageName)
 
         if let jpegData = image.jpegData(compressionQuality: 0.8) {
             try? jpegData.write(to: imagePath)
@@ -66,11 +74,6 @@ class ViewController: UITableViewController, UIImagePickerControllerDelegate, UI
         
 //        save()
         dismiss(animated: true)
-    }
-    
-    func getDocumentsDirectory() -> URL {
-        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        return paths[0]
     }
 }
 
