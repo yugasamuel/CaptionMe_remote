@@ -68,12 +68,27 @@ class ViewController: UITableViewController, UIImagePickerControllerDelegate, UI
             try? jpegData.write(to: imagePath)
         }
         
-        let photo = Photo(caption: "N/A", image: imageName)
+        let photo = Photo(caption: "", image: imageName)
         photos.append(photo)
-        tableView.reloadData()
+        
         
 //        save()
         dismiss(animated: true)
+        showAlert(photo: photo)
+    }
+    
+    func showAlert(photo: Photo) {
+        let ac = UIAlertController(title: "Add photo caption", message: nil, preferredStyle: .alert)
+        
+        ac.addTextField()
+        
+        ac.addAction(UIAlertAction(title: "Submit", style: .default) { [weak self, weak ac] _ in
+            guard let caption = ac?.textFields?[0].text else { return }
+            photo.caption = caption
+            self?.tableView.reloadData()
+        })
+        
+        present(ac, animated: true)
     }
 }
 
